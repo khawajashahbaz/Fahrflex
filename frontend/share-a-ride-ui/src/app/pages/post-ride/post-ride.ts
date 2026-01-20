@@ -62,8 +62,8 @@ export class PostRideComponent implements OnInit {
   error: string | null = null;
   successMessage: string | null = null;
 
-  // Current user (simulated)
-  currentUserId = 'person_driver_1';
+  // Current user (simulated) - ID 1 from database (person_driver_1)
+  currentUserId = '1';
 
   constructor(
     private fb: FormBuilder,
@@ -376,24 +376,25 @@ export class PostRideComponent implements OnInit {
 
     const filteredStopovers = this.stopovers.filter(s => s.trim() !== '');
 
-    const rideOffer: CreateRideOfferDto = {
+    // Build the ride offer object matching backend RideOffer entity
+    const rideOffer: any = {
       departureCity: this.routeForm.value.departureCity,
       destinationCity: this.routeForm.value.destinationCity,
       departureTime: dateTime.toISOString(),
-      seatsAvailable: this.vehicleForm.value.seatsOffered,
-      pricePerPerson: this.pricingForm.value.pricePerPerson,
-      luggageCount: this.vehicleForm.value.luggageSpace,
-      driverPersonId: this.currentUserId,
-      carId: this.vehicleForm.value.carId,
-      smokingAllowed: this.preferencesForm.value.smokingAllowed,
-      petsAllowed: this.preferencesForm.value.petsAllowed,
-      musicAllowed: this.preferencesForm.value.musicAllowed,
-      chatLevel: this.preferencesForm.value.chatLevel,
-      additionalNotes: this.preferencesForm.value.additionalNotes,
-      flexibleTime: this.scheduleForm.value.flexibleTime,
-      flexibilityMinutes: this.scheduleForm.value.flexibilityMinutes,
-      stops: filteredStopovers,
-      acceptedPaymentMethods: this.getPaymentMethods()
+      seatsAvailable: parseInt(this.vehicleForm.value.seatsOffered) || 1,
+      pricePerPerson: parseFloat(this.pricingForm.value.pricePerPerson) || 0,
+      luggageCount: parseInt(this.vehicleForm.value.luggageSpace) || 0,
+      driverPersonId: parseInt(this.currentUserId),
+      carId: this.vehicleForm.value.carId ? parseInt(this.vehicleForm.value.carId) : null,
+      smokingAllowed: this.preferencesForm.value.smokingAllowed || false,
+      petsAllowed: this.preferencesForm.value.petsAllowed || false,
+      musicAllowed: this.preferencesForm.value.musicAllowed || false,
+      chatLevel: parseInt(this.preferencesForm.value.chatLevel) || 3,
+      additionalNotes: this.preferencesForm.value.additionalNotes || '',
+      flexibleTime: this.scheduleForm.value.flexibleTime || false,
+      flexibilityMinutes: parseInt(this.scheduleForm.value.flexibilityMinutes) || 15,
+      stops: filteredStopovers.join(','),  // Backend expects comma-separated string
+      acceptedPaymentMethods: this.getPaymentMethods().join(',')  // Backend expects comma-separated string
     };
 
     this.ridesApi.createRideOffer(rideOffer).subscribe({

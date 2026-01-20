@@ -75,3 +75,11 @@ INSERT INTO riderequest (id, ride_offer_id, person_id, pickup_location, dropoff_
 INSERT INTO passenger (id, ride_id, person_id, luggage_count, payment_method, payment_outstanding, pickup_location, dropoff_location, pet, kid, seats_consumed) VALUES
 (1, 1, 2, 1, 'CARD', FALSE, 'Ulm Hauptbahnhof', 'Munich Central', FALSE, FALSE, 1),
 (2, 2, 6, 1, 'CASH', TRUE, 'Munich Ost', 'Ulm Hauptbahnhof', FALSE, FALSE, 1);
+-- Reset auto-increment sequences to continue after the seed data
+ALTER TABLE insurance ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE car ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE person ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE rideoffer ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE ride ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE riderequest ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE passenger ALTER COLUMN id RESTART WITH 100;

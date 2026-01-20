@@ -298,17 +298,17 @@ export class RidesApi {
 
   // Create a ride offer (Post a Ride)
   createRideOffer(dto: CreateRideOfferDto): Observable<RideOfferSummaryDto> {
-    return this.http.post<RideOfferSummaryDto>(`${this.baseUrl}/rides`, dto);
+    return this.http.post<RideOfferSummaryDto>(`${this.baseUrl}/rideoffers`, dto);
   }
 
   // Get user's ride offers (as driver)
   getDriverRideOffers(driverId: string): Observable<RideOfferSummaryDto[]> {
-    return this.http.get<RideOfferSummaryDto[]>(`${this.baseUrl}/rides/driver/${driverId}`);
+    return this.http.get<RideOfferSummaryDto[]>(`${this.baseUrl}/rideoffers/driver/${driverId}`);
   }
 
   // Delete a ride offer
   deleteRideOffer(offerId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/rides/${offerId}`);
+    return this.http.delete<void>(`${this.baseUrl}/rideoffers/${offerId}`);
   }
 
   // Get user's cars

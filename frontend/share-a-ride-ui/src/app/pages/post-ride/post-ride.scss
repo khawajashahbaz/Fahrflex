@@ -525,8 +525,35 @@ $transition: all 0.3s ease;
   }
 }
 
+// Simple date and time input styles
+.date-input,
+.time-input {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid $border-color;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: white;
+  color: $text-dark;
+  cursor: pointer;
+  box-sizing: border-box;
+  min-height: 52px;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+  }
+
+  &:hover {
+    border-color: darken($border-color, 10%);
+  }
+}
+
 .input-with-icon {
   position: relative;
+  display: block;
 
   svg {
     position: absolute;
@@ -549,32 +576,41 @@ $transition: all 0.3s ease;
     background: white;
     color: $text-dark;
     cursor: pointer;
+    box-sizing: border-box;
 
     &:focus {
       outline: none;
       border-color: $primary-color;
-    }
-
-    &::-webkit-calendar-picker-indicator {
-      cursor: pointer;
-      opacity: 0.6;
-      padding: 0.5rem;
-      margin-right: -0.5rem;
-
-      &:hover {
-        opacity: 1;
-      }
-    }
-
-    // Firefox fix for date/time inputs
-    &::-moz-focus-inner {
-      border: 0;
     }
   }
 
   input[type="date"],
   input[type="time"] {
     min-height: 52px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    position: relative;
+    padding-right: 2.5rem;
+
+    &::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      opacity: 1;
+      padding: 8px;
+      margin: 0;
+      background-color: transparent;
+      position: absolute;
+      right: 8px;
+      top: 0;
+      bottom: 0;
+      width: auto;
+      height: auto;
+    }
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-clear-button {
+      display: none;
+    }
   }
 }
 
