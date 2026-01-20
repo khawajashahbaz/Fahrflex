@@ -1,0 +1,17 @@
+<section class="about-page">
+  <div class="container">
+    <h1>About us</h1>
+    <p class="subtitle">Meet the team behind FahrFlex.</p>
+
+    <div class="team-row">
+      <article class="member-card" *ngFor="let m of members">
+        <div class="avatar">
+          <img [src]="m.imgSrc" [alt]="m.imgAlt" loading="lazy" />
+        </div>
+
+        <div class="name">{{ m.name }}</div>
+        <div class="role">{{ m.role }}</div>
+      </article>
+    </div>
+  </div>
+</section>

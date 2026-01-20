@@ -1,0 +1,45 @@
+<section class="static-page">
+    <div class="container">
+        <h1>Contact us</h1>
+        <p class="subtitle">Send us a message. Your email client will open with a prefilled draft.</p>
+
+        <div class="card">
+            <form class="form" [formGroup]="form">
+                <div class="grid">
+                    <label class="field">
+                        <span class="label">Email</span>
+                        <input type="email" formControlName="email" placeholder="name@example.com" />
+                    </label>
+
+                    <label class="field">
+                        <span class="label">Forename</span>
+                        <input type="text" formControlName="forename" placeholder="Your forename" />
+                    </label>
+
+                    <label class="field">
+                        <span class="label">Lastname</span>
+                        <input type="text" formControlName="lastname" placeholder="Your lastname" />
+                    </label>
+                </div>
+
+                <label class="field message">
+                    <span class="label">Message</span>
+                    <textarea formControlName="message" rows="7" placeholder="How can we help you?"></textarea>
+                </label>
+
+                <div class="actions">
+                    <button class="btn" type="button" [disabled]="!canOpenMail()" (click)="openMailDraft()">
+                        Open email draft
+                    </button>
+                    <div class="hint" *ngIf="!canOpenMail()">
+                        Please fill in a valid email, your name, and a message (min. 10 characters).
+                    </div>
+
+                    <div class="error-inline" *ngIf="uiError">
+                        {{ uiError }}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,71 @@
+<section class="hero">
+  <div class="container">
+    <div class="center">
+      <div class="top-actions">
+        <button class="pill" type="button" routerLink="/">Find a ride</button>
+        <button class="pill-disabled" type="button" disabled>Post a ride</button>
+        <button class="pill-disabled" type="button" disabled>Rent a car</button>
+        <button class="pill-disabled" type="button" disabled>Offer your car</button>
+      </div>
+
+      <h1 class="headline">Your Journey, Greener</h1>
+      <h2 class="subhead">Share, Rent, Thrive</h2>
+
+      <div class="search-card">
+        <div class="card-title">Find A Ride</div>
+
+        <div class="grid">
+          <label class="field">
+            <span class="label">Departure City</span>
+            <input type="text" placeholder="e.g. Ulm" [(ngModel)]="departureCity" />
+          </label>
+
+          <label class="field">
+            <span class="label">Destination City</span>
+            <input type="text" placeholder="e.g. Munich" [(ngModel)]="destinationCity" />
+          </label>
+
+          <label class="field">
+            <span class="label">Date (optional)</span>
+            <input type="date" [(ngModel)]="date" />
+          </label>
+
+          <label class="field">
+            <span class="label">Time (optional)</span>
+            <input type="time" [(ngModel)]="time" />
+          </label>
+
+          <div class="actions">
+            <button class="search" type="button" (click)="goToFind()">Search</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="circle">🌿</div>
+          <div class="stat-text">
+            <div class="big">50,0000 KG</div>
+            <div class="small">CO2 Saved</div>
+          </div>
+        </div>
+
+        <div class="stat">
+          <div class="circle">🚗</div>
+          <div class="stat-text">
+            <div class="big">100,000 KM</div>
+            <div class="small">Covered</div>
+          </div>
+        </div>
+
+        <div class="stat">
+          <div class="circle">👥</div>
+          <div class="stat-text">
+            <div class="big">10,000 Users</div>
+            <div class="small">Registered</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

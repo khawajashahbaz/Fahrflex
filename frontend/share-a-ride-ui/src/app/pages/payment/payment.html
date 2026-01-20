@@ -1,0 +1,236 @@
+<section class="page">
+    <div class="container">
+        <!-- Order Summary (always visible) -->
+        <div class="order-summary" *ngIf="rideDetails && step !== 'success'">
+            <div class="summary-header">
+                <span class="summary-icon">🛒</span>
+                <span class="summary-title">Order Summary</span>
+            </div>
+            <div class="summary-content">
+                <div class="route">
+                    <span class="city">{{ rideDetails.departureCity }}</span>
+                    <span class="arrow">→</span>
+                    <span class="city">{{ rideDetails.destinationCity }}</span>
+                </div>
+                <div class="datetime">
+                    {{ formatDate(rideDetails.departureTime) }} at {{ formatTime(rideDetails.departureTime) }}
+                </div>
+                <div class="driver">Driver: {{ rideDetails.driverName }}</div>
+            </div>
+            <div class="summary-total">
+                <span>Total Amount</span>
+                <span class="amount">{{ totalAmount }} €</span>
+            </div>
+        </div>
+
+        <!-- Step 1: Select Payment Method -->
+        <div class="payment-section" *ngIf="step === 'select'">
+            <h1 class="page-title">Choose Payment Method</h1>
+
+            <div class="payment-methods">
+                <div class="method-card" [class.selected]="selectedMethod === 'CARD'" (click)="selectPaymentMethod('CARD')">
+                    <div class="method-icon">💳</div>
+                    <div class="method-info">
+                        <span class="method-name">Credit / Debit Card</span>
+                        <span class="method-desc">Visa, Mastercard, Amex</span>
+                    </div>
+                    <div class="method-check" *ngIf="selectedMethod === 'CARD'">✓</div>
+                </div>
+
+                <div class="method-card" [class.selected]="selectedMethod === 'PAYPAL'" (click)="selectPaymentMethod('PAYPAL')">
+                    <div class="method-icon">🅿️</div>
+                    <div class="method-info">
+                        <span class="method-name">PayPal</span>
+                        <span class="method-desc">Pay with your PayPal account</span>
+                    </div>
+                    <div class="method-check" *ngIf="selectedMethod === 'PAYPAL'">✓</div>
+                </div>
+
+                <div class="method-card" [class.selected]="selectedMethod === 'CASH'" (click)="selectPaymentMethod('CASH')">
+                    <div class="method-icon">💵</div>
+                    <div class="method-info">
+                        <span class="method-name">Cash</span>
+                        <span class="method-desc">Pay the driver directly</span>
+                    </div>
+                    <div class="method-check" *ngIf="selectedMethod === 'CASH'">✓</div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-full" (click)="proceedToPayment()">
+                {{ selectedMethod === 'CASH' ? 'Confirm Booking' : 'Continue to Payment' }}
+            </button>
+        </div>
+
+        <!-- Step 2: Card Payment Form -->
+        <div class="payment-section" *ngIf="step === 'card'">
+            <div class="section-header">
+                <button class="back-btn" (click)="goBack()">← Back</button>
+                <h1 class="page-title">Card Payment</h1>
+            </div>
+
+            <form [formGroup]="cardForm" (ngSubmit)="submitCardPayment()" class="payment-form">
+                <div class="form-group">
+                    <label>Card Number</label>
+                    <input type="text" 
+                           formControlName="cardNumber" 
+                           placeholder="1234 5678 9012 3456"
+                           (input)="formatCardNumber($event)"
+                           maxlength="16" />
+                    <div class="card-icons">
+                        <span>💳</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Cardholder Name</label>
+                    <input type="text" formControlName="cardName" placeholder="Name on card" />
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Expiry Date</label>
+                        <div class="expiry-inputs">
+                            <input type="text" formControlName="expiryMonth" placeholder="MM" maxlength="2" />
+                            <span>/</span>
+                            <input type="text" formControlName="expiryYear" placeholder="YY" maxlength="2" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>CVV</label>
+                        <input type="password" formControlName="cvv" placeholder="•••" maxlength="4" />
+                    </div>
+                </div>
+
+                <label class="checkbox-label">
+                    <input type="checkbox" formControlName="saveCard" />
+                    <span>Save card for future payments</span>
+                </label>
+
+                <div class="error-message" *ngIf="error">{{ error }}</div>
+
+                <button type="submit" class="btn btn-primary btn-full" [disabled]="processing">
+                    {{ processing ? 'Processing...' : 'Pay ' + totalAmount + ' €' }}
+                </button>
+
+                <div class="secure-badge">
+                    <span>🔒</span> Your payment is secured with 256-bit SSL encryption
+                </div>
+            </form>
+        </div>
+
+        <!-- Step 3: PayPal Payment -->
+        <div class="payment-section" *ngIf="step === 'paypal'">
+            <div class="section-header">
+                <button class="back-btn" (click)="goBack()">← Back</button>
+                <h1 class="page-title">PayPal Payment</h1>
+            </div>
+
+            <div class="paypal-logo">
+                <span class="paypal-p">Pay</span><span class="paypal-pal">Pal</span>
+            </div>
+
+            <form [formGroup]="paypalForm" (ngSubmit)="submitPaypalPayment()" class="payment-form">
+                <div class="form-group">
+                    <label>PayPal Email</label>
+                    <input type="email" formControlName="email" placeholder="your@email.com" />
+                </div>
+
+                <div class="form-group">
+                    <label>PayPal Password</label>
+                    <input type="password" formControlName="password" placeholder="Enter your password" />
+                </div>
+
+                <div class="error-message" *ngIf="error">{{ error }}</div>
+
+                <button type="submit" class="btn btn-paypal btn-full" [disabled]="processing">
+                    {{ processing ? 'Connecting to PayPal...' : 'Log In to PayPal' }}
+                </button>
+
+                <div class="paypal-note">
+                    You will be asked to verify your payment with an OTP
+                </div>
+            </form>
+        </div>
+
+        <!-- Step 4: OTP Verification -->
+        <div class="payment-section" *ngIf="step === 'otp'">
+            <div class="section-header">
+                <button class="back-btn" (click)="goBack()">← Back</button>
+                <h1 class="page-title">Verify Payment</h1>
+            </div>
+
+            <div class="otp-icon">🔐</div>
+            <p class="otp-message">
+                We've sent a 6-digit verification code to your registered mobile number. Please enter it below.
+            </p>
+
+            <form [formGroup]="otpForm" (ngSubmit)="verifyOtp()" class="payment-form">
+                <div class="form-group otp-input-group">
+                    <label>Enter OTP</label>
+                    <input type="text" 
+                           formControlName="otp" 
+                           placeholder="• • • • • •"
+                           maxlength="6"
+                           class="otp-input" />
+                </div>
+
+                <div class="resend-otp">
+                    Didn't receive the code? <button type="button" class="link-btn" (click)="resendOtp()">Resend OTP</button>
+                </div>
+
+                <div class="error-message" *ngIf="error">{{ error }}</div>
+
+                <button type="submit" class="btn btn-primary btn-full" [disabled]="processing">
+                    {{ processing ? 'Verifying...' : 'Verify & Pay' }}
+                </button>
+            </form>
+        </div>
+
+        <!-- Step 5: Success -->
+        <div class="payment-section success-section" *ngIf="step === 'success'">
+            <div class="success-icon">✓</div>
+            <h1 class="success-title">Payment Successful!</h1>
+            <p class="success-message">Your ride has been booked successfully</p>
+
+            <div class="success-details">
+                <div class="detail-row">
+                    <span>Booking ID</span>
+                    <strong>{{ bookingId }}</strong>
+                </div>
+                <div class="detail-row" *ngIf="transactionId">
+                    <span>Transaction ID</span>
+                    <strong>{{ transactionId }}</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Amount Paid</span>
+                    <strong>{{ totalAmount }} €</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Payment Method</span>
+                    <strong>
+                        <span *ngIf="selectedMethod === 'CARD'">Credit Card</span>
+                        <span *ngIf="selectedMethod === 'PAYPAL'">PayPal</span>
+                        <span *ngIf="selectedMethod === 'CASH'">Cash (Pay to Driver)</span>
+                    </strong>
+                </div>
+            </div>
+
+            <div class="success-route" *ngIf="rideDetails">
+                <div class="route-display">
+                    <span class="city">{{ rideDetails.departureCity }}</span>
+                    <span class="arrow">→</span>
+                    <span class="city">{{ rideDetails.destinationCity }}</span>
+                </div>
+                <div class="route-datetime">
+                    {{ formatDate(rideDetails.departureTime) }} at {{ formatTime(rideDetails.departureTime) }}
+                </div>
+            </div>
+
+            <div class="success-actions">
+                <a [routerLink]="['/booking', bookingId]" class="btn btn-primary btn-full">View Booking Details</a>
+                <a routerLink="/my-rides" class="btn btn-secondary btn-full">Go to My Rides</a>
+            </div>
+        </div>
+    </div>
+</section>

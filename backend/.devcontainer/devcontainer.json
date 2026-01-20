@@ -1,0 +1,14 @@
+{
+  "name": "share-a-ride-backend",
+  "dockerComposeFile": "./docker-compose.yml",
+  "service": "backend",
+  "workspaceFolder": "/workspace/",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack"
+      ]
+    }
+  }
+}

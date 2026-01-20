@@ -1,0 +1,119 @@
+<section class="page">
+    <div class="container">
+        <div class="header">
+            <h1 class="title">My Rides</h1>
+            <p class="subtitle">View your upcoming and past trips</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab" [class.active]="activeTab === 'upcoming'" (click)="switchTab('upcoming')">
+                Upcoming Trips
+                <span class="badge" *ngIf="upcomingRides.length">{{ upcomingRides.length }}</span>
+            </button>
+            <button class="tab" [class.active]="activeTab === 'past'" (click)="switchTab('past')">
+                Past Trips
+                <span class="badge" *ngIf="pastRides.length">{{ pastRides.length }}</span>
+            </button>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading your rides...</p>
+        </div>
+
+        <!-- Error -->
+        <div *ngIf="error" class="error">{{ error }}</div>
+
+        <!-- Empty State -->
+        <div *ngIf="!loading && displayedRides.length === 0" class="empty">
+            <div class="empty-icon">🚗</div>
+            <h3>No {{ activeTab }} rides</h3>
+            <p *ngIf="activeTab === 'upcoming'">You don't have any upcoming trips. <a routerLink="/find">Find a ride</a> to get started!</p>
+            <p *ngIf="activeTab === 'past'">You haven't completed any trips yet.</p>
+        </div>
+
+        <!-- Rides List -->
+        <div class="rides-list" *ngIf="!loading && displayedRides.length > 0">
+            <article class="ride-card" *ngFor="let ride of displayedRides">
+                <div class="ride-header">
+                    <div class="route-info">
+                        <div class="cities">
+                            <span class="city">{{ ride.departureCity }}</span>
+                            <span class="arrow">→</span>
+                            <span class="city">{{ ride.destinationCity }}</span>
+                        </div>
+                        <div class="datetime">
+                            <span class="date">{{ formatDate(ride.departureTime) }}</span>
+                            <span class="time">{{ formatTime(ride.departureTime) }}</span>
+                        </div>
+                    </div>
+                    <div class="status-price">
+                        <span class="status" [class]="getStatusClass(ride.status)">{{ ride.status }}</span>
+                        <span class="price">{{ ride.totalPrice }} €</span>
+                    </div>
+                </div>
+
+                <div class="ride-details">
+                    <div class="detail-row">
+                        <span class="detail-icon">📍</span>
+                        <div class="detail-content">
+                            <span class="detail-label">Pickup</span>
+                            <span class="detail-value">{{ ride.pickupLocation }}</span>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-icon">🏁</span>
+                        <div class="detail-content">
+                            <span class="detail-label">Dropoff</span>
+                            <span class="detail-value">{{ ride.dropoffLocation }}</span>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-icon">👤</span>
+                        <div class="detail-content">
+                            <span class="detail-label">Driver</span>
+                            <span class="detail-value">{{ ride.driverName }}</span>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-icon">🚗</span>
+                        <div class="detail-content">
+                            <span class="detail-label">Vehicle</span>
+                            <span class="detail-value">{{ ride.carMake }} {{ ride.carModel }} ({{ ride.carPlate }})</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ride-meta">
+                    <div class="meta-pills">
+                        <span class="pill">🧳 {{ ride.luggageCount }} luggage</span>
+                        <span class="pill" *ngIf="ride.pet">🐕 Pet</span>
+                        <span class="pill" *ngIf="ride.kid">👶 Kid</span>
+                        <span class="pill">💳 {{ ride.paymentMethod }}</span>
+                    </div>
+                </div>
+
+                <div class="ride-actions">
+                    <a [routerLink]="['/booking', ride.id]" class="btn btn-secondary">View Details</a>
+                    <button *ngIf="ride.status === 'UPCOMING'" 
+                            [routerLink]="['/chat', ride.rideId]"
+                            class="btn btn-secondary">
+                        💬 Chat with Driver
+                    </button>
+                    <button *ngIf="ride.status === 'UPCOMING'" 
+                            [routerLink]="['/booking', ride.id, 'cancel']"
+                            class="btn btn-danger">
+                        Cancel Ride
+                    </button>
+                    <button *ngIf="ride.status === 'COMPLETED'" 
+                            [routerLink]="['/feedback', ride.rideId]"
+                            class="btn btn-primary">
+                        ⭐ Give Feedback
+                    </button>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>

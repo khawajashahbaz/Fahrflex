@@ -1,0 +1,73 @@
+<section class="page">
+    <div class="container">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <a routerLink="/my-rides" class="back-btn">←</a>
+            <div class="chat-info">
+                <div class="avatar">{{ otherPartyName.charAt(0) }}</div>
+                <div class="info">
+                    <span class="name">{{ otherPartyName }}</span>
+                    <span class="ride-info">
+                        {{ rideDetails.departureCity }} → {{ rideDetails.destinationCity }}
+                    </span>
+                </div>
+            </div>
+            <a [routerLink]="['/booking', 'booking_1']" class="view-ride-btn">View Ride</a>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading messages...</p>
+        </div>
+
+        <!-- Messages Area -->
+        <div *ngIf="!loading" class="messages-area" #messagesContainer>
+            <div class="messages">
+                <ng-container *ngFor="let msg of messages; let i = index">
+                    <!-- Date Separator -->
+                    <div class="date-separator" *ngIf="getMessageDate(msg, i) as date">
+                        <span>{{ date }}</span>
+                    </div>
+
+                    <!-- Message Bubble -->
+                    <div class="message" [class.own]="isOwnMessage(msg)" [class.other]="!isOwnMessage(msg)">
+                        <div class="message-content">
+                            <p class="message-text">{{ msg.content }}</p>
+                            <span class="message-time">{{ formatTime(msg.timestamp) }}</span>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- Empty State -->
+                <div *ngIf="messages.length === 0" class="empty-chat">
+                    <div class="empty-icon">💬</div>
+                    <h3>Start the conversation</h3>
+                    <p>Send a message to coordinate your ride details</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Input -->
+        <div class="message-input-area" *ngIf="!loading">
+            <form [formGroup]="messageForm" (ngSubmit)="sendMessage()" class="message-form">
+                <input 
+                    type="text" 
+                    formControlName="message" 
+                    placeholder="Type a message..."
+                    [disabled]="sending"
+                />
+                <button type="submit" class="send-btn" [disabled]="sending || !messageForm.value.message?.trim()">
+                    <span *ngIf="!sending">➤</span>
+                    <span *ngIf="sending" class="sending-spinner"></span>
+                </button>
+            </form>
+
+            <div class="quick-replies">
+                <button type="button" (click)="messageForm.setValue({message: 'I\'m on my way!'})">I'm on my way!</button>
+                <button type="button" (click)="messageForm.setValue({message: 'I\'ll be there in 5 minutes'})">5 min away</button>
+                <button type="button" (click)="messageForm.setValue({message: 'Running a bit late'})">Running late</button>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,4 @@
+# MongoDB persistent data (do not commit)
+data/mongo/*
+!data/mongo/.gitkeep
+/target/*

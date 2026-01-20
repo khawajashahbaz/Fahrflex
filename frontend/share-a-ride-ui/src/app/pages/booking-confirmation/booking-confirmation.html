@@ -1,0 +1,187 @@
+<section class="page">
+    <div class="container">
+        <!-- Loading -->
+        <div *ngIf="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading booking details...</p>
+        </div>
+
+        <!-- Booking Details -->
+        <div *ngIf="!loading && booking" class="booking-details">
+            <!-- Success Header -->
+            <div class="confirmation-header" *ngIf="booking.status === 'UPCOMING' && booking.paymentStatus === 'COMPLETED'">
+                <div class="success-icon">✓</div>
+                <h1>Booking Confirmed!</h1>
+                <p>Your ride has been successfully booked</p>
+            </div>
+
+            <!-- Status Header for other states -->
+            <div class="status-header" *ngIf="booking.status !== 'UPCOMING' || booking.paymentStatus !== 'COMPLETED'">
+                <h1>Booking Details</h1>
+                <span class="status" [class]="getStatusClass(booking.status)">{{ booking.status }}</span>
+            </div>
+
+            <!-- Booking ID -->
+            <div class="booking-id">
+                <span>Booking ID:</span>
+                <strong>{{ booking.id }}</strong>
+            </div>
+
+            <!-- Route Card -->
+            <div class="card route-card">
+                <div class="card-header">
+                    <span class="card-icon">🛣️</span>
+                    <span class="card-title">Trip Details</span>
+                </div>
+                <div class="route-display">
+                    <div class="route-point">
+                        <div class="point-marker start"></div>
+                        <div class="point-details">
+                            <span class="point-city">{{ booking.departureCity }}</span>
+                            <span class="point-location">{{ booking.pickupLocation }}</span>
+                        </div>
+                    </div>
+                    <div class="route-line"></div>
+                    <div class="route-point">
+                        <div class="point-marker end"></div>
+                        <div class="point-details">
+                            <span class="point-city">{{ booking.destinationCity }}</span>
+                            <span class="point-location">{{ booking.dropoffLocation }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="datetime-row">
+                    <div class="datetime-item">
+                        <span class="datetime-icon">📅</span>
+                        <span class="datetime-value">{{ formatDate(booking.departureTime) }}</span>
+                    </div>
+                    <div class="datetime-item">
+                        <span class="datetime-icon">🕐</span>
+                        <span class="datetime-value">{{ formatTime(booking.departureTime) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Driver Card -->
+            <div class="card driver-card">
+                <div class="card-header">
+                    <span class="card-icon">👤</span>
+                    <span class="card-title">Driver Information</span>
+                </div>
+                <div class="driver-info">
+                    <div class="driver-avatar">
+                        {{ booking.driverName?.charAt(0) || 'D' }}
+                    </div>
+                    <div class="driver-details">
+                        <span class="driver-name">{{ booking.driverName }}</span>
+                        <span class="driver-phone">{{ booking.driverPhone }}</span>
+                    </div>
+                    <button class="btn-icon" *ngIf="booking.status === 'UPCOMING'" [routerLink]="['/chat', booking.rideId]">
+                        💬
+                    </button>
+                </div>
+                <div class="vehicle-info">
+                    <span class="vehicle-icon">🚗</span>
+                    <span class="vehicle-details">{{ booking.carMake }} {{ booking.carModel }}</span>
+                    <span class="vehicle-plate">{{ booking.carPlate }}</span>
+                </div>
+            </div>
+
+            <!-- Trip Options Card -->
+            <div class="card options-card">
+                <div class="card-header">
+                    <span class="card-icon">🎒</span>
+                    <span class="card-title">Trip Options</span>
+                </div>
+                <div class="options-grid">
+                    <div class="option-item">
+                        <span class="option-icon">🧳</span>
+                        <span class="option-label">Luggage</span>
+                        <span class="option-value">{{ booking.luggageCount }}</span>
+                    </div>
+                    <div class="option-item">
+                        <span class="option-icon">🐕</span>
+                        <span class="option-label">Pet</span>
+                        <span class="option-value">{{ booking.pet ? 'Yes' : 'No' }}</span>
+                    </div>
+                    <div class="option-item">
+                        <span class="option-icon">👶</span>
+                        <span class="option-label">Child</span>
+                        <span class="option-value">{{ booking.kid ? 'Yes' : 'No' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Card -->
+            <div class="card payment-card">
+                <div class="card-header">
+                    <span class="card-icon">💳</span>
+                    <span class="card-title">Payment Details</span>
+                </div>
+                <div class="payment-details">
+                    <div class="payment-row">
+                        <span>Payment Method</span>
+                        <span class="payment-method">
+                            <span *ngIf="booking.paymentMethod === 'CARD'">💳 Credit Card</span>
+                            <span *ngIf="booking.paymentMethod === 'PAYPAL'">🅿️ PayPal</span>
+                            <span *ngIf="booking.paymentMethod === 'CASH'">💵 Cash</span>
+                        </span>
+                    </div>
+                    <div class="payment-row">
+                        <span>Payment Status</span>
+                        <span class="payment-status" [class.completed]="booking.paymentStatus === 'COMPLETED'">
+                            {{ booking.paymentStatus === 'COMPLETED' ? '✓ Paid' : 'Pending' }}
+                        </span>
+                    </div>
+                    <div class="payment-row total">
+                        <span>Total Amount</span>
+                        <span class="total-amount">{{ booking.totalPrice }} €</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions">
+                <a routerLink="/my-rides" class="btn btn-secondary">View All Rides</a>
+                <button *ngIf="booking.status === 'UPCOMING'" class="btn btn-danger" (click)="openCancelModal()">
+                    Cancel Booking
+                </button>
+                <a *ngIf="booking.status === 'COMPLETED'" [routerLink]="['/feedback', booking.rideId]" class="btn btn-primary">
+                    ⭐ Give Feedback
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Modal -->
+    <div class="modal-overlay" *ngIf="showCancelModal" (click)="closeCancelModal()">
+        <div class="modal" (click)="$event.stopPropagation()">
+            <div class="modal-icon">⚠️</div>
+            <h2>Cancel this ride?</h2>
+            <p>Are you sure you want to cancel this booking? This action cannot be undone.</p>
+            
+            <div class="modal-details" *ngIf="booking">
+                <div class="modal-route">
+                    <strong>{{ booking.departureCity }}</strong>
+                    <span>→</span>
+                    <strong>{{ booking.destinationCity }}</strong>
+                </div>
+                <div class="modal-date">{{ formatDate(booking.departureTime) }} at {{ formatTime(booking.departureTime) }}</div>
+            </div>
+
+            <div class="modal-note">
+                <span class="note-icon">ℹ️</span>
+                <span>Cancellation fees may apply based on the timing of your cancellation.</span>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" (click)="closeCancelModal()" [disabled]="cancelling">
+                    Keep Booking
+                </button>
+                <button class="btn btn-danger" (click)="confirmCancel()" [disabled]="cancelling">
+                    {{ cancelling ? 'Cancelling...' : 'Yes, Cancel Ride' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</section>

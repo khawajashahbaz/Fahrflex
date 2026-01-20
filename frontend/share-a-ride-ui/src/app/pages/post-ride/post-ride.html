@@ -1,0 +1,573 @@
+<div class="post-ride-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Post a Ride</h1>
+      <p>Share your journey and earn money by offering seats</p>
+    </div>
+  </div>
+
+  <!-- Progress Steps -->
+  <div class="progress-section">
+    <div class="progress-container">
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="progressPercentage"></div>
+      </div>
+      <div class="steps-wrapper">
+        <div 
+          *ngFor="let step of steps; let i = index"
+          class="step-item"
+          [class.completed]="isStepCompleted(step.id)"
+          [class.active]="isStepActive(step.id)"
+          [class.clickable]="canNavigateToStep(step.id)"
+          (click)="goToStep(step.id)">
+          <div class="step-number">
+            <span *ngIf="isStepCompleted(step.id)">✓</span>
+            <span *ngIf="!isStepCompleted(step.id)">{{ i + 1 }}</span>
+          </div>
+          <span class="step-label">{{ step.title }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Form Container -->
+  <div class="form-wrapper">
+    <div class="form-card">
+      
+      <!-- Step 1: Route -->
+      <div class="step-content" *ngIf="currentStep === 'route'" >
+        <div class="step-header">
+          <div class="step-icon">📍</div>
+          <div class="step-info">
+            <h2>Where are you going?</h2>
+            <p>Set your departure and destination</p>
+          </div>
+        </div>
+
+        <form [formGroup]="routeForm" class="form-body">
+          <!-- Route Visual -->
+          <div class="route-visual">
+            <div class="route-point departure">
+              <div class="point-marker">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="10" r="3"/>
+                  <path d="M12 2a8 8 0 0 0-8 8c0 5.4 7 12 8 12s8-6.6 8-12a8 8 0 0 0-8-8z"/>
+                </svg>
+              </div>
+              <div class="point-content">
+                <label>Departure city</label>
+                <select formControlName="departureCity" class="city-select">
+                  <option value="">Select departure city...</option>
+                  <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="route-line">
+              <button type="button" class="swap-btn" (click)="swapCities()" title="Swap cities">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="route-point destination">
+              <div class="point-marker destination-marker">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+              </div>
+              <div class="point-content">
+                <label>Destination city</label>
+                <select formControlName="destinationCity" class="city-select">
+                  <option value="">Select destination city...</option>
+                  <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="validation-error" *ngIf="routeForm.value.departureCity && routeForm.value.departureCity === routeForm.value.destinationCity">
+            <span class="error-icon">⚠️</span>
+            Departure and destination cannot be the same city
+          </div>
+        </form>
+      </div>
+
+      <!-- Step 2: Stopovers -->
+      <div class="step-content" *ngIf="currentStep === 'stopovers'" >
+        <div class="step-header">
+          <div class="step-icon">🛑</div>
+          <div class="step-info">
+            <h2>Add Stopovers</h2>
+            <p>Pick up passengers along the way (optional)</p>
+          </div>
+        </div>
+
+        <form [formGroup]="stopoversForm" class="form-body">
+          <div class="stopovers-list">
+            <div class="stopover-item origin">
+              <div class="stopover-marker">
+                <span class="marker-dot start"></span>
+              </div>
+              <div class="stopover-info">
+                <span class="stopover-city">{{ routeForm.value.departureCity }}</span>
+                <span class="stopover-label">Starting point</span>
+              </div>
+            </div>
+
+            <div class="stopover-item" *ngFor="let stop of stopovers; let i = index">
+              <div class="stopover-marker">
+                <span class="marker-dot"></span>
+              </div>
+              <div class="stopover-info editable">
+                <input type="text" [(ngModel)]="stopovers[i]" [ngModelOptions]="{standalone: true}" placeholder="Enter city name">
+                <button type="button" class="remove-stop" (click)="removeStopover(i)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <button type="button" class="add-stopover-btn" (click)="addStopover()">
+              <span class="add-icon">+</span>
+              <span>Add a stopover</span>
+            </button>
+
+            <div class="stopover-item destination">
+              <div class="stopover-marker">
+                <span class="marker-dot end"></span>
+              </div>
+              <div class="stopover-info">
+                <span class="stopover-city">{{ routeForm.value.destinationCity }}</span>
+                <span class="stopover-label">Final destination</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-box">
+            <span class="info-icon">💡</span>
+            <p>Adding stopovers can help you find more passengers and share costs</p>
+          </div>
+        </form>
+      </div>
+
+      <!-- Step 3: Schedule -->
+      <div class="step-content" *ngIf="currentStep === 'schedule'" >
+        <div class="step-header">
+          <div class="step-icon">📅</div>
+          <div class="step-info">
+            <h2>When are you leaving?</h2>
+            <p>Set your departure date and time</p>
+          </div>
+        </div>
+
+        <form [formGroup]="scheduleForm" class="form-body">
+          <div class="datetime-grid">
+            <div class="form-field">
+              <label>Departure Date</label>
+              <div class="input-with-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <input type="date" formControlName="departureDate" [min]="minDate">
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label>Departure Time</label>
+              <div class="input-with-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <input type="time" formControlName="departureTime">
+              </div>
+            </div>
+          </div>
+
+          <div class="flexibility-section">
+            <label class="toggle-label">
+              <input type="checkbox" formControlName="flexibleTime">
+              <span class="toggle-switch"></span>
+              <span class="toggle-text">I'm flexible with my departure time</span>
+            </label>
+
+            <div class="flexibility-options" *ngIf="scheduleForm.value.flexibleTime">
+              <p class="flexibility-label">How flexible are you?</p>
+              <div class="flexibility-buttons">
+                <button type="button"
+                        [class.active]="scheduleForm.value.flexibilityMinutes === 15"
+                        (click)="setFlexibility(15)">
+                  ± 15 min
+                </button>
+                <button type="button"
+                        [class.active]="scheduleForm.value.flexibilityMinutes === 30"
+                        (click)="setFlexibility(30)">
+                  ± 30 min
+                </button>
+                <button type="button"
+                        [class.active]="scheduleForm.value.flexibilityMinutes === 60"
+                        (click)="setFlexibility(60)">
+                  ± 1 hour
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Step 4: Vehicle -->
+      <div class="step-content" *ngIf="currentStep === 'vehicle'" >
+        <div class="step-header">
+          <div class="step-icon">🚗</div>
+          <div class="step-info">
+            <h2>Select your vehicle</h2>
+            <p>Choose the car for this trip</p>
+          </div>
+        </div>
+
+        <form [formGroup]="vehicleForm" class="form-body">
+          <div class="vehicle-grid">
+            <div class="vehicle-card"
+                 *ngFor="let car of userCars"
+                 [class.selected]="vehicleForm.value.carId === car.id"
+                 (click)="selectCar(car)">
+              <div class="vehicle-image">
+                <span class="car-emoji">🚗</span>
+              </div>
+              <div class="vehicle-details">
+                <h4>{{ car.make }} {{ car.model }}</h4>
+                <p class="vehicle-plate">{{ car.plate }}</p>
+                <div class="vehicle-specs">
+                  <span><strong>{{ car.availableSeats }}</strong> seats</span>
+                  <span><strong>{{ car.luggageSpace }}</strong> bags</span>
+                  <span>{{ car.buildYear }}</span>
+                </div>
+              </div>
+              <div class="selected-indicator" *ngIf="vehicleForm.value.carId === car.id">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="vehicle-card add-vehicle">
+              <div class="add-icon">+</div>
+              <p>Add a new vehicle</p>
+            </div>
+          </div>
+
+          <div class="capacity-section" *ngIf="vehicleForm.value.carId">
+            <h3>Trip capacity</h3>
+            <div class="capacity-grid">
+              <div class="capacity-item">
+                <label>Seats to offer</label>
+                <div class="number-stepper">
+                  <button type="button" (click)="decrementSeats()" [disabled]="vehicleForm.value.seatsOffered <= 1">−</button>
+                  <span class="stepper-value">{{ vehicleForm.value.seatsOffered }}</span>
+                  <button type="button" (click)="incrementSeats()" [disabled]="vehicleForm.value.seatsOffered >= (getSelectedCar()?.availableSeats ?? 4)">+</button>
+                </div>
+                <span class="capacity-hint">Max {{ getSelectedCar()?.availableSeats ?? 4 }} seats</span>
+              </div>
+
+              <div class="capacity-item">
+                <label>Luggage space (bags)</label>
+                <div class="number-stepper">
+                  <button type="button" (click)="decrementLuggage()" [disabled]="vehicleForm.value.luggageSpace <= 0">−</button>
+                  <span class="stepper-value">{{ vehicleForm.value.luggageSpace }}</span>
+                  <button type="button" (click)="incrementLuggage()" [disabled]="vehicleForm.value.luggageSpace >= 5">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Step 5: Preferences -->
+      <div class="step-content" *ngIf="currentStep === 'preferences'" >
+        <div class="step-header">
+          <div class="step-icon">⚙️</div>
+          <div class="step-info">
+            <h2>Set your preferences</h2>
+            <p>Let passengers know what to expect</p>
+          </div>
+        </div>
+
+        <form [formGroup]="preferencesForm" class="form-body">
+          <div class="preferences-grid">
+            <div class="preference-card" 
+                 [class.active]="!preferencesForm.value.smokingAllowed"
+                 (click)="preferencesForm.patchValue({smokingAllowed: !preferencesForm.value.smokingAllowed})">
+              <span class="pref-icon">🚭</span>
+              <span class="pref-label">No Smoking</span>
+              <span class="pref-status">{{ preferencesForm.value.smokingAllowed ? 'Off' : 'On' }}</span>
+            </div>
+
+            <div class="preference-card"
+                 [class.active]="preferencesForm.value.petsAllowed"
+                 (click)="preferencesForm.patchValue({petsAllowed: !preferencesForm.value.petsAllowed})">
+              <span class="pref-icon">🐕</span>
+              <span class="pref-label">Pets Allowed</span>
+              <span class="pref-status">{{ preferencesForm.value.petsAllowed ? 'On' : 'Off' }}</span>
+            </div>
+
+            <div class="preference-card"
+                 [class.active]="preferencesForm.value.musicAllowed"
+                 (click)="preferencesForm.patchValue({musicAllowed: !preferencesForm.value.musicAllowed})">
+              <span class="pref-icon">🎵</span>
+              <span class="pref-label">Music</span>
+              <span class="pref-status">{{ preferencesForm.value.musicAllowed ? 'On' : 'Off' }}</span>
+            </div>
+          </div>
+
+          <div class="chat-section">
+            <label>How chatty are you?</label>
+            <div class="chat-slider-container">
+              <input type="range" 
+                     formControlName="chatLevel" 
+                     min="0" 
+                     max="4" 
+                     class="chat-slider">
+              <div class="chat-labels">
+                <span>🤫</span>
+                <span>😊</span>
+                <span>💬</span>
+                <span>🗣️</span>
+                <span>🎉</span>
+              </div>
+              <p class="chat-description">{{ getChatLevelLabel(preferencesForm.value.chatLevel) }}</p>
+            </div>
+          </div>
+
+          <div class="form-field notes-field">
+            <label>Additional notes (optional)</label>
+            <textarea formControlName="additionalNotes" 
+                      placeholder="Anything else passengers should know? e.g., 'I'll have some boxes in the trunk' or 'Happy to stop for coffee breaks'"
+                      rows="3"></textarea>
+          </div>
+        </form>
+      </div>
+
+      <!-- Step 6: Pricing -->
+      <div class="step-content" *ngIf="currentStep === 'pricing'" >
+        <div class="step-header">
+          <div class="step-icon">💶</div>
+          <div class="step-info">
+            <h2>Set your price</h2>
+            <p>Choose a fair price for passengers</p>
+          </div>
+        </div>
+
+        <form [formGroup]="pricingForm" class="form-body">
+          <div class="price-suggestion">
+            <div class="suggestion-card">
+              <span class="suggestion-label">Suggested price</span>
+              <span class="suggestion-price">€{{ suggestedPrice.toFixed(2) }}</span>
+              <span class="suggestion-hint">Based on distance & fuel costs</span>
+              <button type="button" class="apply-suggestion" (click)="applySuggestedPrice()">
+                Apply suggestion
+              </button>
+            </div>
+          </div>
+
+          <div class="price-input-section">
+            <label>Price per passenger</label>
+            <div class="price-input-wrapper">
+              <span class="currency-symbol">€</span>
+              <input type="number" 
+                     formControlName="pricePerPerson" 
+                     min="1" 
+                     step="0.5"
+                     class="price-input">
+            </div>
+          </div>
+
+          <div class="earnings-preview">
+            <div class="earnings-row">
+              <span>{{ vehicleForm.value.seatsOffered }} passengers × €{{ pricingForm.value.pricePerPerson }}</span>
+              <span class="earnings-total">€{{ (vehicleForm.value.seatsOffered * pricingForm.value.pricePerPerson).toFixed(2) }}</span>
+            </div>
+            <p class="earnings-hint">Maximum potential earnings per trip</p>
+          </div>
+
+          <div class="payment-methods">
+            <label>Accepted payment methods</label>
+            <div class="payment-grid">
+              <label class="payment-option" [class.active]="pricingForm.value.acceptCash">
+                <input type="checkbox" formControlName="acceptCash">
+                <span class="payment-icon">💵</span>
+                <span class="payment-name">Cash</span>
+              </label>
+              <label class="payment-option" [class.active]="pricingForm.value.acceptCard">
+                <input type="checkbox" formControlName="acceptCard">
+                <span class="payment-icon">💳</span>
+                <span class="payment-name">Card</span>
+              </label>
+              <label class="payment-option" [class.active]="pricingForm.value.acceptPaypal">
+                <input type="checkbox" formControlName="acceptPaypal">
+                <span class="payment-icon">🅿️</span>
+                <span class="payment-name">PayPal</span>
+              </label>
+            </div>
+            <p class="payment-hint" *ngIf="!pricingForm.value.acceptCash && !pricingForm.value.acceptCard && !pricingForm.value.acceptPaypal">
+              ⚠️ Please select at least one payment method
+            </p>
+          </div>
+        </form>
+      </div>
+
+      <!-- Step 7: Review -->
+      <div class="step-content" *ngIf="currentStep === 'review'" >
+        <div class="step-header">
+          <div class="step-icon">✅</div>
+          <div class="step-info">
+            <h2>Review your ride</h2>
+            <p>Make sure everything is correct before posting</p>
+          </div>
+        </div>
+
+        <div class="form-body">
+          <div class="review-card">
+            <!-- Route Summary -->
+            <div class="review-section">
+              <div class="review-header" (click)="goToStep('route')">
+                <h4>📍 Route</h4>
+                <button type="button" class="edit-btn">Edit</button>
+              </div>
+              <div class="review-content">
+                <div class="route-summary">
+                  <span class="route-city">{{ routeForm.value.departureCity }}</span>
+                  <span class="route-arrow">→</span>
+                  <span class="route-city">{{ routeForm.value.destinationCity }}</span>
+                </div>
+                <p class="route-stops" *ngIf="stopovers.length > 0">
+                  Stops: {{ stopovers.join(', ') }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Schedule Summary -->
+            <div class="review-section">
+              <div class="review-header" (click)="goToStep('schedule')">
+                <h4>📅 Schedule</h4>
+                <button type="button" class="edit-btn">Edit</button>
+              </div>
+              <div class="review-content">
+                <p class="schedule-datetime">{{ getFormattedDateTime() }}</p>
+                <p class="schedule-flexibility" *ngIf="scheduleForm.value.flexibleTime">
+                  Flexible: ± {{ scheduleForm.value.flexibilityMinutes }} minutes
+                </p>
+              </div>
+            </div>
+
+            <!-- Vehicle Summary -->
+            <div class="review-section">
+              <div class="review-header" (click)="goToStep('vehicle')">
+                <h4>🚗 Vehicle</h4>
+                <button type="button" class="edit-btn">Edit</button>
+              </div>
+              <div class="review-content">
+                <p class="vehicle-name">{{ getSelectedCar()?.make }} {{ getSelectedCar()?.model }}</p>
+                <div class="vehicle-capacity">
+                  <span>{{ vehicleForm.value.seatsOffered }} seats</span>
+                  <span>•</span>
+                  <span>{{ vehicleForm.value.luggageSpace }} bags</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Preferences Summary -->
+            <div class="review-section">
+              <div class="review-header" (click)="goToStep('preferences')">
+                <h4>⚙️ Preferences</h4>
+                <button type="button" class="edit-btn">Edit</button>
+              </div>
+              <div class="review-content">
+                <div class="pref-tags">
+                  <span class="pref-tag" [class.off]="preferencesForm.value.smokingAllowed">
+                    🚭 {{ preferencesForm.value.smokingAllowed ? 'Smoking OK' : 'No smoking' }}
+                  </span>
+                  <span class="pref-tag" [class.off]="!preferencesForm.value.petsAllowed">
+                    🐕 {{ preferencesForm.value.petsAllowed ? 'Pets OK' : 'No pets' }}
+                  </span>
+                  <span class="pref-tag" [class.off]="!preferencesForm.value.musicAllowed">
+                    🎵 {{ preferencesForm.value.musicAllowed ? 'Music OK' : 'No music' }}
+                  </span>
+                </div>
+                <p class="chat-level">Chattiness: {{ getChatLevelLabel(preferencesForm.value.chatLevel) }}</p>
+              </div>
+            </div>
+
+            <!-- Pricing Summary -->
+            <div class="review-section pricing-section">
+              <div class="review-header" (click)="goToStep('pricing')">
+                <h4>💶 Price</h4>
+                <button type="button" class="edit-btn">Edit</button>
+              </div>
+              <div class="review-content">
+                <p class="price-display">€{{ pricingForm.value.pricePerPerson }} <span>per passenger</span></p>
+                <p class="payment-methods-display">
+                  Payment: {{ getPaymentMethods().join(', ') }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="error-message" *ngIf="error">
+            <span class="error-icon">❌</span>
+            {{ error }}
+          </div>
+
+          <div class="success-message" *ngIf="successMessage">
+            <span class="success-icon">✅</span>
+            {{ successMessage }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="form-navigation">
+        <button type="button" 
+                class="btn-back" 
+                (click)="prevStep()"
+                *ngIf="currentStepIndex > 0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m15 18-6-6 6-6"/>
+          </svg>
+          Back
+        </button>
+        
+        <div class="nav-spacer"></div>
+
+        <button type="button"
+                class="btn-next"
+                (click)="nextStep()"
+                *ngIf="currentStep !== 'review'"
+                [disabled]="!canProceed()">
+          Next
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m9 18 6-6-6-6"/>
+          </svg>
+        </button>
+
+        <button type="button"
+                class="btn-publish"
+                (click)="submitRide()"
+                *ngIf="currentStep === 'review'"
+                [disabled]="submitting">
+          {{ submitting ? 'Publishing...' : 'Publish Ride' }}
+          <svg *ngIf="!submitting" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

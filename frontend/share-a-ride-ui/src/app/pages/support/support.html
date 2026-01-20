@@ -1,0 +1,80 @@
+<section class="static-page">
+    <div class="container">
+        <h1>Support</h1>
+        <p class="subtitle">Describe your issue. Your email client will open with a prefilled draft.</p>
+
+        <div class="card">
+            <div class="hint" *ngIf="loadingUser">Prefilling your profile data…</div>
+            <div class="error-inline" *ngIf="uiError">{{ uiError }}</div>
+
+            <form class="form" [formGroup]="form">
+                <div class="grid">
+                    <label class="field">
+                        <span class="label">First name</span>
+                        <input type="text" formControlName="firstname" placeholder="First name" />
+                    </label>
+
+                    <label class="field">
+                        <span class="label">Last name</span>
+                        <input type="text" formControlName="lastname" placeholder="Last name (optional)" />
+                    </label>
+
+                    <label class="field">
+                        <span class="label">Email</span>
+                        <input type="email" formControlName="email" placeholder="name@example.com" />
+                    </label>
+
+                    <label class="field">
+                        <span class="label">Phone</span>
+                        <input type="tel" formControlName="phone" placeholder="+49 ..." />
+                    </label>
+
+                    <label class="field">
+                        <span class="label">Ride (optional)</span>
+                        <select formControlName="rideId">
+                            <option value="">— Select a past ride —</option>
+                            <option *ngFor="let r of rides" [value]="r.rideId">
+                                {{ r.departureCity }} → {{ r.destinationCity }} ({{ r.role }})
+                            </option>
+                        </select>
+                    </label>
+
+                    <label class="field" *ngIf="showPassengerId()">
+                        <span class="label">Person involved (optional)</span>
+                        <select formControlName="passengerId">
+                            <option value="">— Select (driver or passenger) —</option>
+                            <option *ngFor="let p of participants" [value]="p.personId">
+                                {{ p.name }} ({{ p.role }})
+                            </option>
+                        </select>
+                    </label>
+
+                    <label class="field">
+                        <span class="label">Problem</span>
+                        <select formControlName="problem">
+                            <option value="PAYMENT">Payment</option>
+                            <option value="NO_SHOW">No-show</option>
+                            <option value="AGGRESSION">Aggression / Unfriendly</option>
+                        </select>
+                    </label>
+                </div>
+
+                <label class="field message">
+                    <span class="label">Message</span>
+                    <textarea formControlName="message" rows="7" placeholder="Describe what happened…"></textarea>
+                </label>
+
+                <div class="actions">
+                    <button class="btn" type="button" [disabled]="!canOpenMail()" (click)="openMailDraft()">
+                        Open email draft
+                    </button>
+
+                    <div class="hint" *ngIf="!canOpenMail()">
+                        Please fill first name, a valid email, phone number, a problem type, and a message (min. 10
+                        characters).
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>

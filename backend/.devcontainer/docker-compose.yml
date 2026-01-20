@@ -1,0 +1,22 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: sar-mongo
+    environment:
+      MONGO_INITDB_DATABASE: sharearide
+    volumes:
+      - ../data/mongo:/data/db
+      - ../infra/mongo-seed:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "27017:27017"
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../:/workspace:cached
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo

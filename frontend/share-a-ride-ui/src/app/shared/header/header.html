@@ -1,0 +1,33 @@
+<header class="app-header">
+  <div class="container">
+    <a class="logo" routerLink="/">
+      <span class="logo-mark">FahrFlex</span>
+      <span class="logo-sub">Share. Rent. Thrive.</span>
+    </a>
+
+    <nav class="nav">
+      <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+      <a class="nav-link" routerLink="/find" routerLinkActive="active">Find a Ride</a>
+      <a class="nav-link cta-link" routerLink="/post-ride" routerLinkActive="active">Post a Ride</a>
+      <a class="nav-link" routerLink="/my-rides" routerLinkActive="active">My Rides</a>
+      <a class="nav-link" routerLink="/support" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Support</a>
+
+      <div class="profile">
+        <button type="button" class="profile-trigger">
+          <span class="avatar" aria-hidden="true"></span>
+          <span class="name">{{ userName }}</span>
+          <span class="caret" aria-hidden="true">▾</span>
+        </button>
+
+        <div class="profile-menu" role="menu" aria-label="Profile menu">
+          <button type="button" class="menu-item" disabled>Change profile</button>
+          <a routerLink="/my-rides" class="menu-item">My trips</a>
+          <button type="button" class="menu-item" disabled>Language</button>
+          <button type="button" class="menu-item" disabled>Enable notifications</button>
+          <div class="divider"></div>
+          <button type="button" class="menu-item" disabled>Sign out</button>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>

@@ -1,0 +1,115 @@
+<section class="page">
+    <div class="container">
+        <!-- Loading -->
+        <div *ngIf="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+
+        <!-- Feedback Form -->
+        <div *ngIf="!loading && !submitted" class="feedback-content">
+            <div class="header">
+                <h1>Rate Your Ride</h1>
+                <p>Help others by sharing your experience</p>
+            </div>
+
+            <!-- Ride Summary -->
+            <div class="ride-summary">
+                <div class="route">
+                    <span class="city">{{ rideDetails.departureCity }}</span>
+                    <span class="arrow">→</span>
+                    <span class="city">{{ rideDetails.destinationCity }}</span>
+                </div>
+                <div class="date">{{ formatDate(rideDetails.departureTime) }}</div>
+            </div>
+
+            <!-- Driver Info -->
+            <div class="driver-section">
+                <div class="driver-avatar">{{ rideDetails.driverName.charAt(0) }}</div>
+                <div class="driver-info">
+                    <span class="label">Your driver was</span>
+                    <span class="name">{{ rideDetails.driverName }}</span>
+                </div>
+            </div>
+
+            <!-- Star Rating -->
+            <div class="rating-section">
+                <h2>How was your ride?</h2>
+                <div class="stars">
+                    <button 
+                        *ngFor="let star of [1, 2, 3, 4, 5]"
+                        type="button"
+                        class="star"
+                        [class.filled]="star <= (hoveredRating || selectedRating)"
+                        (click)="setRating(star)"
+                        (mouseenter)="setHoveredRating(star)"
+                        (mouseleave)="setHoveredRating(0)">
+                        ★
+                    </button>
+                </div>
+                <span class="rating-label" *ngIf="ratingLabel">{{ ratingLabel }}</span>
+            </div>
+
+            <!-- Categories -->
+            <div class="categories-section" *ngIf="selectedRating > 0">
+                <h3>What did you like?</h3>
+                <p class="hint">Select all that apply</p>
+                <div class="categories">
+                    <button 
+                        *ngFor="let cat of categories"
+                        type="button"
+                        class="category"
+                        [class.selected]="cat.selected"
+                        (click)="toggleCategory(cat)">
+                        <span class="cat-icon">{{ cat.icon }}</span>
+                        <span class="cat-label">{{ cat.label }}</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Comment -->
+            <div class="comment-section" *ngIf="selectedRating > 0">
+                <h3>Additional comments (optional)</h3>
+                <form [formGroup]="feedbackForm">
+                    <textarea 
+                        formControlName="comment"
+                        placeholder="Share more details about your experience..."
+                        rows="4"
+                        maxlength="500">
+                    </textarea>
+                    <span class="char-count">{{ feedbackForm.value.comment?.length || 0 }}/500</span>
+                </form>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="submit-section">
+                <button 
+                    class="btn btn-primary btn-full"
+                    [disabled]="!canSubmit || submitting"
+                    (click)="submitFeedback()">
+                    {{ submitting ? 'Submitting...' : 'Submit Feedback' }}
+                </button>
+                <a routerLink="/my-rides" class="skip-link">Skip for now</a>
+            </div>
+        </div>
+
+        <!-- Success State -->
+        <div *ngIf="submitted" class="success-content">
+            <div class="success-icon">🎉</div>
+            <h1>Thank You!</h1>
+            <p>Your feedback helps improve the ride-sharing experience for everyone.</p>
+            
+            <div class="submitted-rating">
+                <span class="stars-display">
+                    <span *ngFor="let star of [1, 2, 3, 4, 5]" class="star-display" [class.filled]="star <= selectedRating">★</span>
+                </span>
+                <span class="rating-text">You rated {{ selectedRating }} stars</span>
+            </div>
+
+            <div class="success-actions">
+                <a routerLink="/my-rides" class="btn btn-primary btn-full">Go to My Rides</a>
+                <a routerLink="/find" class="btn btn-secondary btn-full">Find Another Ride</a>
+            </div>
+        </div>
+    </div>
+</section>

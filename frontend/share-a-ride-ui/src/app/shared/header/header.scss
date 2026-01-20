@@ -1,0 +1,147 @@
+.app-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.container {
+  height: 64px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.logo {
+  text-decoration: none;
+  color: #1f2937;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.logo-mark {
+  font-weight: 800;
+  font-size: 20px;
+}
+
+.logo-sub {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #111827;
+  font-size: 14px;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+.nav-link.active {
+  background: #f3f4f6;
+}
+
+.nav-link:hover {
+  background: #f3f4f6;
+}
+
+.nav-link.cta-link {
+  background: #00b894;
+  color: white;
+  font-weight: 600;
+
+  &:hover {
+    background: #00a085;
+  }
+
+  &.active {
+    background: #00a085;
+  }
+}
+
+.nav-link.disabled {
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.profile {
+  position: relative;
+}
+
+.profile-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 999px;
+  padding: 6px 10px;
+  cursor: default;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #d1d5db;
+}
+
+.name {
+  font-size: 14px;
+  color: #111827;
+}
+
+.caret {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.profile-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 220px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  padding: 8px;
+  display: none;
+  z-index: 10;
+}
+
+.profile:hover .profile-menu {
+  display: block;
+}
+
+.menu-item {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  padding: 10px 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #111827;
+}
+
+.menu-item:disabled {
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 6px 0;
+}

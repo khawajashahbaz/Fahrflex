@@ -1,0 +1,530 @@
+<section class="find-ride-page">
+  <!-- Hero Section with Search -->
+  <div class="search-hero">
+    <div class="search-container">
+      <h1 class="search-title">Find a Ride</h1>
+      <p class="search-subtitle">Search for rides and travel together</p>
+      
+      <!-- Main Search Bar -->
+      <div class="search-bar" [formGroup]="searchForm">
+        <div class="search-field departure-field">
+          <div class="field-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="10" r="3"/>
+              <path d="M12 2a8 8 0 0 0-8 8c0 5.4 7 12 8 12s8-6.6 8-12a8 8 0 0 0-8-8z"/>
+            </svg>
+          </div>
+          <div class="field-content">
+            <label>Departure</label>
+            <input 
+              type="text" 
+              formControlName="departureCity"
+              placeholder="Enter departure city"
+              (input)="onDepartureInput($event)"
+              (focus)="showDepartureDropdown = filteredDepartureCities.length > 0"
+              (blur)="hideDepartureDropdown()"
+              autocomplete="off" />
+          </div>
+          <div class="autocomplete-dropdown" *ngIf="showDepartureDropdown && filteredDepartureCities.length">
+            <div class="dropdown-item" 
+                 *ngFor="let city of filteredDepartureCities"
+                 (mousedown)="selectDepartureCity(city)">
+              <span class="dropdown-icon">📍</span>
+              <span>{{ city }}</span>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="swap-btn" (click)="swapCities()" title="Swap cities">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/>
+          </svg>
+        </button>
+
+        <div class="search-field destination-field">
+          <div class="field-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+          <div class="field-content">
+            <label>Destination</label>
+            <input 
+              type="text" 
+              formControlName="destinationCity"
+              placeholder="Enter destination city"
+              (input)="onDestinationInput($event)"
+              (focus)="showDestinationDropdown = filteredDestinationCities.length > 0"
+              (blur)="hideDestinationDropdown()"
+              autocomplete="off" />
+          </div>
+          <div class="autocomplete-dropdown" *ngIf="showDestinationDropdown && filteredDestinationCities.length">
+            <div class="dropdown-item" 
+                 *ngFor="let city of filteredDestinationCities"
+                 (mousedown)="selectDestinationCity(city)">
+              <span class="dropdown-icon">🏁</span>
+              <span>{{ city }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="search-field date-field">
+          <div class="field-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </div>
+          <div class="field-content">
+            <label>Date</label>
+            <input type="date" formControlName="date" />
+          </div>
+        </div>
+
+        <button type="button" class="search-btn" (click)="triggerSearch()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          <span>Search</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="main-content">
+    <!-- Filters Sidebar -->
+    <aside class="filters-sidebar" [formGroup]="filterForm">
+      <div class="filters-header">
+        <h3>Filters</h3>
+        <button type="button" class="clear-btn" (click)="clearFilters()">Clear all</button>
+      </div>
+
+      <!-- Seats Filter -->
+      <div class="filter-section">
+        <h4>Seats needed</h4>
+        <div class="seats-selector">
+          <button type="button" 
+                  *ngFor="let num of [1,2,3,4]"
+                  [class.active]="filterForm.value.minSeats === num"
+                  (click)="filterForm.patchValue({minSeats: num})">
+            {{ num }}{{ num === 4 ? '+' : '' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- I am Filter -->
+      <div class="filter-section">
+        <h4>I am</h4>
+        <div class="checkbox-group">
+          <label class="checkbox-item">
+            <input type="checkbox" formControlName="isWoman">
+            <span class="checkmark"></span>
+            <span class="checkbox-label">👩 Woman</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" formControlName="hasChild">
+            <span class="checkmark"></span>
+            <span class="checkbox-label">👶 Traveling with child</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" formControlName="hasPet">
+            <span class="checkmark"></span>
+            <span class="checkbox-label">🐕 Traveling with pet</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" formControlName="hasLuggage">
+            <span class="checkmark"></span>
+            <span class="checkbox-label">🧳 Large luggage</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Budget Range -->
+      <div class="filter-section">
+        <h4>Budget range</h4>
+        <div class="budget-slider">
+          <div class="budget-display">
+            <span>€0</span>
+            <span>€{{ filterForm.value.maxPrice }}</span>
+          </div>
+          <input type="range" 
+                 formControlName="maxPrice" 
+                 min="5" 
+                 max="100" 
+                 step="5"
+                 class="range-slider" />
+        </div>
+      </div>
+
+      <!-- Time Filter -->
+      <div class="filter-section">
+        <h4>Departure time</h4>
+        <div class="time-slots">
+          <button type="button" 
+                  [class.active]="filterForm.value.timeSlot === 'morning'"
+                  (click)="filterForm.patchValue({timeSlot: filterForm.value.timeSlot === 'morning' ? '' : 'morning'})">
+            🌅 Morning<br><small>6am - 12pm</small>
+          </button>
+          <button type="button"
+                  [class.active]="filterForm.value.timeSlot === 'afternoon'"
+                  (click)="filterForm.patchValue({timeSlot: filterForm.value.timeSlot === 'afternoon' ? '' : 'afternoon'})">
+            ☀️ Afternoon<br><small>12pm - 6pm</small>
+          </button>
+          <button type="button"
+                  [class.active]="filterForm.value.timeSlot === 'evening'"
+                  (click)="filterForm.patchValue({timeSlot: filterForm.value.timeSlot === 'evening' ? '' : 'evening'})">
+            🌙 Evening<br><small>6pm - 12am</small>
+          </button>
+        </div>
+      </div>
+
+      <!-- Preferences -->
+      <div class="filter-section">
+        <h4>Preferences</h4>
+        <div class="checkbox-group">
+          <label class="checkbox-item">
+            <input type="checkbox" formControlName="noSmoking">
+            <span class="checkmark"></span>
+            <span class="checkbox-label">🚭 Non-smoking only</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" formControlName="petsAllowed">
+            <span class="checkmark"></span>
+            <span class="checkbox-label">🐾 Pets allowed</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" formControlName="musicAllowed">
+            <span class="checkmark"></span>
+            <span class="checkbox-label">🎵 Music allowed</span>
+          </label>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Results Section -->
+    <div class="results-section">
+      <!-- Results Header -->
+      <div class="results-header">
+        <div class="results-count">
+          <span *ngIf="state === 'loading'">
+            <span class="loading-spinner"></span> Searching...
+          </span>
+          <span *ngIf="state === 'done'">{{ results.length }} rides found</span>
+          <span *ngIf="state === 'idle'">Enter departure and destination to search</span>
+        </div>
+        <div class="sort-options">
+          <label>Sort by:</label>
+          <select [(ngModel)]="sortBy" (change)="sortResults()">
+            <option value="departure">Earliest departure</option>
+            <option value="price">Lowest price</option>
+            <option value="seats">Most seats</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="state === 'idle'" class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>Search for your ride</h3>
+        <p>Enter your departure and destination cities to find available rides</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="state === 'error'" class="error-state">
+        <div class="error-icon">⚠️</div>
+        <h3>Something went wrong</h3>
+        <p>{{ errorMessage }}</p>
+        <button type="button" class="retry-btn" (click)="triggerSearch()">Try again</button>
+      </div>
+
+      <!-- No Results -->
+      <div *ngIf="state === 'done' && results.length === 0" class="empty-state">
+        <div class="empty-icon">🚗</div>
+        <h3>No rides found</h3>
+        <p>Try adjusting your filters or search for different cities</p>
+      </div>
+
+      <!-- Results List -->
+      <div *ngIf="state === 'done' && results.length > 0" class="results-list">
+        <article class="ride-card" *ngFor="let ride of results">
+          <!-- Card Header: Driver Info -->
+          <div class="card-header">
+            <div class="driver-info">
+              <div class="driver-avatar">
+                <img src="https://ui-avatars.com/api/?name={{ ride.driverName || 'D' }}&background=00b894&color=fff" 
+                     [alt]="ride.driverName || 'Driver'">
+                <span class="verified-badge">✓</span>
+              </div>
+              <div class="driver-details">
+                <span class="driver-name">{{ ride.driverName || 'Driver' }}</span>
+                <div class="driver-rating">
+                  <span class="stars">★★★★★</span>
+                  <span class="rating-value">4.8</span>
+                  <span class="reviews-count">(24 reviews)</span>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="profile-link" (click)="viewDriverProfile(ride.driverPersonId || '')">
+              View profile →
+            </button>
+          </div>
+
+          <!-- Route Timeline -->
+          <div class="route-section">
+            <div class="route-timeline">
+              <div class="timeline-point departure">
+                <div class="time">{{ formatTime(ride.departureTime) }}</div>
+                <div class="point-marker"></div>
+                <div class="location">{{ ride.departureCity }}</div>
+              </div>
+              <div class="timeline-line">
+                <span class="duration">~{{ estimateDuration(ride) }}</span>
+              </div>
+              <div class="timeline-point arrival">
+                <div class="time">{{ formatArrivalTime(ride.departureTime, ride) }}</div>
+                <div class="point-marker"></div>
+                <div class="location">{{ ride.destinationCity }}</div>
+              </div>
+            </div>
+            <div class="route-date">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              {{ formatDate(ride.departureTime) }}
+            </div>
+          </div>
+
+          <!-- Ride Features -->
+          <div class="ride-features">
+            <div class="feature" *ngIf="ride.seatsAvailable">
+              <span class="feature-icon">💺</span>
+              <span>{{ ride.seatsAvailable }} seats left</span>
+            </div>
+            <div class="feature" *ngIf="ride.luggageCount">
+              <span class="feature-icon">🧳</span>
+              <span>{{ ride.luggageCount }} bags</span>
+            </div>
+            <div class="feature" *ngIf="ride.carMake || ride.carModel">
+              <span class="feature-icon">🚗</span>
+              <span>{{ ride.carMake }} {{ ride.carModel }}</span>
+            </div>
+            <div class="feature preference" *ngIf="ride.smokingAllowed === false">
+              <span class="feature-icon">🚭</span>
+              <span>No smoking</span>
+            </div>
+            <div class="feature preference" *ngIf="ride.petsAllowed">
+              <span class="feature-icon">🐾</span>
+              <span>Pets OK</span>
+            </div>
+            <div class="feature preference" *ngIf="ride.musicAllowed">
+              <span class="feature-icon">🎵</span>
+              <span>Music</span>
+            </div>
+          </div>
+
+          <!-- Card Footer: Price & Actions -->
+          <div class="card-footer">
+            <div class="price-section">
+              <span class="price">€{{ ride.pricePerPerson?.toFixed(2) }}</span>
+              <span class="price-label">per person</span>
+            </div>
+            <div class="action-buttons">
+              <button type="button" class="btn-secondary" (click)="toggleDetails(ride.id)">
+                {{ detailsExpandedOfferId === ride.id ? 'Hide details' : 'Details' }}
+              </button>
+              <button type="button" class="btn-primary" (click)="openBooking(ride)">
+                Book now
+              </button>
+            </div>
+          </div>
+
+          <!-- Expanded Details -->
+          <div class="expanded-details" *ngIf="detailsExpandedOfferId === ride.id">
+            <div class="details-loading" *ngIf="detailsLoadingById[ride.id]">
+              <span class="loading-spinner"></span> Loading details...
+            </div>
+            
+            <div class="details-error" *ngIf="detailsErrorById[ride.id]">
+              {{ detailsErrorById[ride.id] }}
+            </div>
+
+            <ng-container *ngIf="detailsById[ride.id] as details">
+              <div class="details-grid">
+                <div class="detail-card">
+                  <h5>🧑 Driver Information</h5>
+                  <div class="detail-row">
+                    <span>Name</span>
+                    <strong>{{ details.driver?.name || ride.driverName || '-' }}</strong>
+                  </div>
+                  <div class="detail-row">
+                    <span>Home city</span>
+                    <strong>{{ details.driver?.homeCity || '-' }}</strong>
+                  </div>
+                  <div class="detail-row">
+                    <span>Chatiness</span>
+                    <strong>{{ getChatLevel(details.driver?.chatinessLevel) }}</strong>
+                  </div>
+                  <div class="detail-row">
+                    <span>Experience</span>
+                    <strong>{{ details.driver?.overallKmCovered || 0 }} km</strong>
+                  </div>
+                </div>
+
+                <div class="detail-card">
+                  <h5>🚗 Vehicle Details</h5>
+                  <div class="detail-row">
+                    <span>Car</span>
+                    <strong>{{ details.car?.make }} {{ details.car?.model }}</strong>
+                  </div>
+                  <div class="detail-row">
+                    <span>Year</span>
+                    <strong>{{ details.car?.buildYear || '-' }}</strong>
+                  </div>
+                  <div class="detail-row">
+                    <span>Plate</span>
+                    <strong>{{ details.car?.plate || '-' }}</strong>
+                  </div>
+                  <div class="detail-row">
+                    <span>Total seats</span>
+                    <strong>{{ details.car?.availableSeats || '-' }}</strong>
+                  </div>
+                </div>
+
+                <div class="detail-card">
+                  <h5>🛡️ Insurance</h5>
+                  <div class="detail-row">
+                    <span>Provider</span>
+                    <strong>{{ details.insurance?.name || '-' }}</strong>
+                  </div>
+                  <div class="detail-row">
+                    <span>Coverage</span>
+                    <strong>{{ details.insurance?.coverage || '-' }}</strong>
+                  </div>
+                  <div class="detail-row">
+                    <span>Passengers covered</span>
+                    <strong>{{ details.insurance?.passengerDriverInsurance ? 'Yes ✓' : 'No' }}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="additional-notes" *ngIf="ride.additionalNotes">
+                <h5>📝 Additional Notes</h5>
+                <p>{{ ride.additionalNotes }}</p>
+              </div>
+            </ng-container>
+          </div>
+
+          <!-- Booking Form -->
+          <div class="booking-form" *ngIf="joinExpandedOfferId === ride.id">
+            <form [formGroup]="getJoinForm(ride)" class="booking-grid">
+              <h4>Book this ride</h4>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Pickup location</label>
+                  <input type="text" formControlName="pickupLocation" placeholder="Enter pickup point">
+                </div>
+                <div class="form-group">
+                  <label>Dropoff location</label>
+                  <input type="text" formControlName="dropoffLocation" placeholder="Enter dropoff point">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Number of seats</label>
+                  <select formControlName="seatsNeeded">
+                    <option [value]="1">1 seat</option>
+                    <option [value]="2">2 seats</option>
+                    <option [value]="3">3 seats</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Luggage</label>
+                  <select formControlName="luggageCount">
+                    <option [value]="0">No luggage</option>
+                    <option [value]="1">1 bag</option>
+                    <option [value]="2">2 bags</option>
+                    <option [value]="3">3 bags</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row checkboxes">
+                <label class="checkbox-inline">
+                  <input type="checkbox" formControlName="pet">
+                  <span>🐕 Traveling with pet</span>
+                </label>
+                <label class="checkbox-inline">
+                  <input type="checkbox" formControlName="kid">
+                  <span>👶 Traveling with child</span>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label>Payment method</label>
+                <div class="payment-options">
+                  <label class="payment-option" [class.selected]="getJoinForm(ride).value.paymentMethod === 'CASH'">
+                    <input type="radio" formControlName="paymentMethod" value="CASH">
+                    <span class="payment-icon">💵</span>
+                    <span>Cash</span>
+                  </label>
+                  <label class="payment-option" [class.selected]="getJoinForm(ride).value.paymentMethod === 'CARD'">
+                    <input type="radio" formControlName="paymentMethod" value="CARD">
+                    <span class="payment-icon">💳</span>
+                    <span>Card</span>
+                  </label>
+                  <label class="payment-option" [class.selected]="getJoinForm(ride).value.paymentMethod === 'PAYPAL'">
+                    <input type="radio" formControlName="paymentMethod" value="PAYPAL">
+                    <span class="payment-icon">🅿️</span>
+                    <span>PayPal</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="booking-summary">
+                <div class="summary-row">
+                  <span>Price per person</span>
+                  <span>€{{ ride.pricePerPerson?.toFixed(2) }}</span>
+                </div>
+                <div class="summary-row">
+                  <span>Seats</span>
+                  <span>× {{ getJoinForm(ride).value.seatsNeeded || 1 }}</span>
+                </div>
+                <div class="summary-row total">
+                  <span>Total</span>
+                  <span>€{{ ((ride.pricePerPerson || 0) * (getJoinForm(ride).value.seatsNeeded || 1)).toFixed(2) }}</span>
+                </div>
+              </div>
+
+              <div class="booking-actions">
+                <button type="button" class="btn-cancel" (click)="cancelJoin(ride.id)">Cancel</button>
+                <button type="button" class="btn-confirm" 
+                        (click)="submitJoin(ride)"
+                        [disabled]="joinStateByOfferId[ride.id]?.stage === 'requesting'">
+                  {{ joinStateByOfferId[ride.id]?.stage === 'requesting' ? 'Requesting...' : 'Request to book' }}
+                </button>
+              </div>
+
+              <div class="booking-message" *ngIf="joinStateByOfferId[ride.id]?.message">
+                <span [class.success]="joinStateByOfferId[ride.id]?.stage === 'accepted'"
+                      [class.error]="joinStateByOfferId[ride.id]?.stage === 'error'"
+                      [class.waiting]="joinStateByOfferId[ride.id]?.stage === 'waiting'">
+                  {{ joinStateByOfferId[ride.id]?.message }}
+                </span>
+              </div>
+            </form>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>

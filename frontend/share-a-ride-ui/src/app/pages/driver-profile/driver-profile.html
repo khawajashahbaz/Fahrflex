@@ -1,0 +1,152 @@
+<section class="page">
+    <div class="container">
+        <!-- Loading -->
+        <div *ngIf="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading profile...</p>
+        </div>
+
+        <!-- Profile Content -->
+        <div *ngIf="!loading && driver" class="profile-content">
+            <!-- Back Button -->
+            <a routerLink="/find" class="back-link">← Back to Search</a>
+
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="avatar-section">
+                    <div class="avatar">{{ driver.name.charAt(0) }}</div>
+                    <div class="verification-badges">
+                        <span class="badge verified" *ngIf="driver.verifications?.includes('id')">✓ ID Verified</span>
+                        <span class="badge verified" *ngIf="driver.verifications?.includes('phone')">✓ Phone</span>
+                    </div>
+                </div>
+                <div class="header-info">
+                    <h1>{{ driver.name }}</h1>
+                    <div class="rating-display">
+                        <span class="stars">
+                            <span *ngFor="let star of [1, 2, 3, 4, 5]" 
+                                  class="star" 
+                                  [class.filled]="star <= averageRating">★</span>
+                        </span>
+                        <span class="rating-value">{{ averageRating.toFixed(1) }}</span>
+                        <span class="review-count">({{ reviews.length }} reviews)</span>
+                    </div>
+                    <p class="member-since">Member since {{ formatMemberSince(driver.memberSince) }}</p>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="stat">
+                    <span class="stat-value">{{ driver.ridesCompleted }}</span>
+                    <span class="stat-label">Rides</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ (driver.overallKmCovered / 1000).toFixed(0) }}k</span>
+                    <span class="stat-label">Kilometers</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ averageRating.toFixed(1) }}</span>
+                    <span class="stat-label">Rating</span>
+                </div>
+            </div>
+
+            <!-- About Section -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">👤</span>
+                    <span class="card-title">About {{ driver.name.split(' ')[0] }}</span>
+                </div>
+                <div class="card-content">
+                    <p class="bio">{{ driver.bio }}</p>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-icon">📍</span>
+                            <span class="info-label">From</span>
+                            <span class="info-value">{{ driver.homeCity }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-icon">🗣️</span>
+                            <span class="info-label">Languages</span>
+                            <span class="info-value">
+                                <span *ngFor="let lang of driver.languages; let last = last">
+                                    {{ getLanguageName(lang) }}{{ last ? '' : ', ' }}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-icon">💬</span>
+                            <span class="info-label">Chattiness</span>
+                            <span class="info-value">{{ getChatinessLabel(driver.chatinessLevel) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Car Section -->
+            <div class="card" *ngIf="car">
+                <div class="card-header">
+                    <span class="card-icon">🚗</span>
+                    <span class="card-title">Vehicle</span>
+                </div>
+                <div class="card-content">
+                    <div class="car-main">
+                        <div class="car-image">🚙</div>
+                        <div class="car-details">
+                            <span class="car-name">{{ car.make }} {{ car.model }}</span>
+                            <span class="car-year">{{ car.buildYear }} · {{ car.color }}</span>
+                        </div>
+                    </div>
+
+                    <div class="car-features">
+                        <div class="feature">
+                            <span class="feature-icon">💺</span>
+                            <span class="feature-text">{{ car.availableSeats }} seats</span>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">🧳</span>
+                            <span class="feature-text">{{ car.luggageSpace }} luggage</span>
+                        </div>
+                        <div class="feature" [class.allowed]="car.petsAllowed" [class.not-allowed]="!car.petsAllowed">
+                            <span class="feature-icon">🐕</span>
+                            <span class="feature-text">{{ car.petsAllowed ? 'Pets allowed' : 'No pets' }}</span>
+                        </div>
+                        <div class="feature" [class.allowed]="car.smokingAllowed" [class.not-allowed]="!car.smokingAllowed">
+                            <span class="feature-icon">🚭</span>
+                            <span class="feature-text">{{ car.smokingAllowed ? 'Smoking allowed' : 'No smoking' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">⭐</span>
+                    <span class="card-title">Reviews ({{ reviews.length }})</span>
+                </div>
+                <div class="card-content reviews-content">
+                    <div class="review" *ngFor="let review of reviews">
+                        <div class="review-header">
+                            <div class="reviewer-avatar">P</div>
+                            <div class="review-meta">
+                                <div class="review-stars">
+                                    <span *ngFor="let star of [1, 2, 3, 4, 5]" 
+                                          class="star-small" 
+                                          [class.filled]="star <= review.rating">★</span>
+                                </div>
+                                <span class="review-date">{{ formatDate(review.createdAt!) }}</span>
+                            </div>
+                        </div>
+                        <p class="review-comment">{{ review.comment }}</p>
+                    </div>
+
+                    <div class="empty-reviews" *ngIf="reviews.length === 0">
+                        <p>No reviews yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
