@@ -369,10 +369,26 @@ export class PostRideComponent implements OnInit {
   submitRide(): void {
     if (this.submitting) return;
 
+    // Validate required fields
+    const departureDate = this.scheduleForm.value.departureDate;
+    const departureTime = this.scheduleForm.value.departureTime;
+    
+    if (!departureDate || !departureTime) {
+      this.error = 'Please select departure date and time';
+      return;
+    }
+
     this.submitting = true;
     this.error = null;
 
-    const dateTime = new Date(`${this.scheduleForm.value.departureDate}T${this.scheduleForm.value.departureTime}`);
+    const dateTime = new Date(`${departureDate}T${departureTime}`);
+    
+    // Check for valid date
+    if (isNaN(dateTime.getTime())) {
+      this.submitting = false;
+      this.error = 'Invalid date/time selected';
+      return;
+    }
 
     const filteredStopovers = this.stopovers.filter(s => s.trim() !== '');
 
@@ -393,12 +409,15 @@ export class PostRideComponent implements OnInit {
       additionalNotes: this.preferencesForm.value.additionalNotes || '',
       flexibleTime: this.scheduleForm.value.flexibleTime || false,
       flexibilityMinutes: parseInt(this.scheduleForm.value.flexibilityMinutes) || 15,
-      stops: filteredStopovers.join(','),  // Backend expects comma-separated string
-      acceptedPaymentMethods: this.getPaymentMethods().join(',')  // Backend expects comma-separated string
+      stops: filteredStopovers.join(','),
+      acceptedPaymentMethods: this.getPaymentMethods().join(',')
     };
+
+    console.log('Submitting ride offer:', rideOffer);
 
     this.ridesApi.createRideOffer(rideOffer).subscribe({
       next: (created: RideOfferSummaryDto) => {
+        console.log('Ride created successfully:', created);
         this.submitting = false;
         this.successMessage = 'Your ride has been posted successfully! Redirecting...';
 
@@ -407,6 +426,7 @@ export class PostRideComponent implements OnInit {
         }, 2000);
       },
       error: (err) => {
+        console.error('Error creating ride:', err);
         this.submitting = false;
         this.error = err?.error?.message ?? err?.message ?? 'Failed to post ride. Please try again.';
       }
