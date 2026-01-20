@@ -1,0 +1,29 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.iml
+
+# Build outputs
+backend/target
+frontend/share-a-ride-ui/dist
+frontend/share-a-ride-ui/node_modules
+
+# Logs
+*.log
+logs
+
+# Database files
+backend/data
+
+# Documentation
+*.md
+EAE Group 5/
+Post a ride /
+
+# OS files
+.DS_Store
+Thumbs.db

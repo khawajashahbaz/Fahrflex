@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fahrflex-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/api/rideoffers/search?departureCity=test&destinationCity=test"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - fahrflex-network
+
+  frontend:
+    build:
+      context: ./frontend/share-a-ride-ui
+      dockerfile: Dockerfile
+    container_name: fahrflex-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - fahrflex-network
+
+networks:
+  fahrflex-network:
+    driver: bridge

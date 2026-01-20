@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# IDE files
+.idea/
+.vscode/
+
+# Test files
+coverage/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+
+# Angular cache
+.angular/
