@@ -7,7 +7,8 @@ import jakarta.persistence.*;
 @Table(name = "rideoffer")
 public class RideOffer {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "rideoffer_seq")
+    @SequenceGenerator(name = "rideoffer_seq", sequenceName = "rideoffer_sequence", allocationSize = 1, initialValue = 100)
     private Integer id;
 
     private String departureCity;

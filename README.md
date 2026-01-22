@@ -43,9 +43,10 @@ A full-featured rideshare platform built with a **Java Spring Boot Backend**, **
 
 | Layer | Technology |
 |-------|------------|
-| **Frontend** | Angular 17+ (Standalone Components), TypeScript, SCSS |
-| **Backend** | Java 17+, Spring Boot 3.x, Maven, Spring Data JPA |
+| **Frontend** | Angular 21, TypeScript, SCSS |
+| **Backend** | Java 17+, Spring Boot 3.3.0, Maven, Spring Data JPA |
 | **Database** | Apache Derby (Embedded) |
+| **Containerization** | Docker, Docker Compose |
 | **ORM** | Hibernate/JPA |
 
 ---
@@ -53,11 +54,44 @@ A full-featured rideshare platform built with a **Java Spring Boot Backend**, **
 ## 🚀 Setup Instructions
 
 ### Prerequisites
-- Java 17+ installed
-- Node.js (v18+) - Check with `node -v`
-- Maven installed (or use `mvnw` wrapper)
+- Docker & Docker Compose installed (recommended)
+- OR for local development:
+  - Java 17+ installed
+  - Node.js (v18+) - Check with `node -v`
+  - Maven installed
 
-### Backend Setup
+---
+
+### 🐳 Docker Setup (Recommended)
+
+The easiest way to run the entire application:
+
+```bash
+# Start both backend and frontend containers
+docker-compose up --build -d
+
+# View logs
+docker logs fahrflex-backend
+docker logs fahrflex-frontend
+
+# Stop containers
+docker-compose down
+```
+
+✅ **Backend**: `http://localhost:8080`  
+✅ **Frontend**: `http://localhost:4200`
+
+#### Docker Architecture
+| Container | Port | Description |
+|-----------|------|-------------|
+| `fahrflex-backend` | 8080 | Spring Boot + Derby DB |
+| `fahrflex-frontend` | 4200 | Angular + nginx |
+
+---
+
+### 💻 Local Development Setup
+
+#### Backend Setup
 
 1. Navigate to the backend folder:
    ```bash
@@ -76,7 +110,7 @@ A full-featured rideshare platform built with a **Java Spring Boot Backend**, **
 
 ✅ Backend runs at `http://localhost:8080`
 
-### Frontend Setup
+#### Frontend Setup
 
 1. Navigate to the frontend directory:
    ```bash
@@ -94,6 +128,28 @@ A full-featured rideshare platform built with a **Java Spring Boot Backend**, **
    ```
 
 ✅ Frontend runs at `http://localhost:4200`
+
+---
+
+### 🧪 Test the API
+
+```bash
+# Search for rides
+curl "http://localhost:8080/api/rideoffers/search?departureCity=Ulm&destinationCity=Munich"
+
+# Post a new ride
+curl -X POST http://localhost:8080/api/rideoffers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "departureCity": "Munich",
+    "destinationCity": "Berlin",
+    "departureTime": "2026-01-25T10:00:00Z",
+    "seatsAvailable": 3,
+    "pricePerPerson": 25.0,
+    "luggageCount": 2,
+    "driverPersonId": 1
+  }'
+```
 
 ---
 
@@ -266,17 +322,30 @@ The application uses **Apache Derby** with the following relational schema:
 ### Sample API Calls
 
 ```bash
-# Get available ride offers
-curl http://localhost:8080/api/ride-offers
+# Search rides by departure and destination
+curl "http://localhost:8080/api/rideoffers/search?departureCity=Ulm&destinationCity=Munich"
 
-# Search rides by route
-curl "http://localhost:8080/api/ride-offers?from=Ulm&to=Munich"
+# Post a new ride offer
+curl -X POST http://localhost:8080/api/rideoffers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "departureCity": "Munich",
+    "destinationCity": "Berlin",
+    "departureTime": "2026-01-25T10:00:00Z",
+    "seatsAvailable": 3,
+    "pricePerPerson": 25.0,
+    "luggageCount": 2,
+    "driverPersonId": 1
+  }'
+
+# Response example:
+# {"id":101,"departureCity":"Munich","destinationCity":"Berlin",...}
 
 # Get driver profile
-curl http://localhost:8080/api/driver-profile/person_driver_1
+curl http://localhost:8080/api/driver-profile/1
 
 # Get driver reviews
-curl http://localhost:8080/api/reviews/driver/person_driver_1
+curl http://localhost:8080/api/reviews/driver/1
 ```
 
 ---
@@ -305,8 +374,29 @@ curl http://localhost:8080/api/reviews/driver/person_driver_1
 ### What We Implemented:
 - ✅ Find a Ride page (frontend + backend API)
 - ✅ Post a Ride page with 6-step wizard (frontend + backend API)
-- ✅ Apache Derby database seeding with sample data (`data.sql`)
+- ✅ Apache Derby database integration with seed data (`data.sql`)
+- ✅ Docker containerization (docker-compose setup)
+- ✅ Sequence-based ID generation for Derby compatibility
 - ✅ Based on Balsamiq prototype designs
+
+---
+
+## 🔧 Technical Notes
+
+### Derby Database Configuration
+```properties
+spring.datasource.url=jdbc:derby:data/sharearide;create=true
+spring.datasource.driver-class-name=org.apache.derby.jdbc.EmbeddedDriver
+spring.jpa.database-platform=org.hibernate.dialect.DerbyTenSevenDialect
+```
+
+### ID Generation Strategy
+Derby requires explicit sequence configuration when using pre-seeded data:
+```java
+@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "rideoffer_seq")
+@SequenceGenerator(name = "rideoffer_seq", sequenceName = "rideoffer_sequence", 
+                   allocationSize = 1, initialValue = 100)
+```
 
 ---
 
